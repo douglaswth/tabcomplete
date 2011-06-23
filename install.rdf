@@ -5,7 +5,7 @@
         <em:version>1.0alpha</em:version>
         <em:type>2</em:type>
         <em:targetApplication>
-			<Description>
+            <Description>
                 <!-- Instantbird -->
                 <em:id>{33cb9019-c295-46dd-be21-8c4936574bee}</em:id>
                 <em:minVersion>0.3b1</em:minVersion>

@@ -42,30 +42,98 @@
 
 Components.utils.import("resource:///modules/imServices.jsm");
 
+function generatorFromArray(array)
+{
+    for (var index = 0; index != array.length; ++index)
+        yield array[index];
+}
+
+function generatorFromEnumerator(enumerator)
+{
+    while (enumerator.hasMoreElements())
+        yield enumerator.getNext();
+}
+
 let observer = {
     observe: function(subject, topic, data)
     {
         if (topic != "conversation-loaded")
             return;
 
-        this.onConversationLoaded(subject);
+        this.addTabListener(subject);
     },
-    onConversationLoaded: function(subject)
+    addTabListener: function(browser)
     {
-        Services.console.logStringMessage(subject.tagName);
+        var binding = browser.ownerDocument.getBindingParent(browser);
+
+        if (!binding || !("editor" in binding) || !binding.editor)
+            return;
+
+        binding.editor.addEventListener("keypress", this.onKeyPress, true);
+    },
+    removeTabListener: function(browser)
+    {
+        var binding = browser.ownerDocument.getBindingParent(browser);
+
+        if (!binding || !("editor" in binding) || !binding.editor)
+            return;
+
+        binding.editor.removeEventListener("keypress", this.onKeyPress, true);
+    },
+    onKeyPress: function(event)
+    {
+        if ((event.keyCode != event.DOM_VK_TAB) || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
+            return;
+
+        event.preventDefault();
+
+        var editor = event.target;
+        var binding = editor.ownerDocument.getBindingParent(editor);
+        var conversation = binding._conv;
+        var completions = [];
+        var first = true;
+
+        if (first)
+            for each (let command in Services.cmd.listCommandsForConversation(conversation))
+            {
+                var completion = "/" + command.name;
+
+                if (completions.indexOf(completion) == -1)
+                    completions.push(completion);
+            }
+
+        if (conversation.isChat)
+        {
+            for each (let participant in generatorFromEnumerator(conversation.getParticipants()))
+                completions.push(participant.name + (first ? ":" : ""));
+        }
+        else
+            completions.push(conversation.buddy.userName + (first ? ":" : ""));
+
+        completions.sort();
+
+        Services.console.logStringMessage(conversation.name + ": " + completions);
     },
 };
 
 function startup(data, reason)
 {
+    for each (let window in generatorFromEnumerator(Services.wm.getEnumerator("Messenger:convs")))
+        for each (let tabconversation in generatorFromArray(window.document.getElementsByTagName("tabconversation")))
+            for each (let browser in tabconversation.browsers)
+                observer.addTabListener(browser);
+
     Services.obs.addObserver(observer, "conversation-loaded", false);
-    //Services.cmd.listCommandsForConversation
-    //Services.console.logStringMessage
 }
 
 function shutdown(data, reason)
 {
     Services.obs.removeObserver(observer, "conversation-loaded");
+
+    for each (let window in generatorFromEnumerator(Services.wm.getEnumerator("Messenger:convs")))
+        for each (let tabconversation in generatorFromArray(window.document.getElementsByTagName("tabconversation")))
+            for each (let browser in tabconversation.browsers)
+                observer.removeTabListener(browser);
 }
 
 function install(data, reason) {}

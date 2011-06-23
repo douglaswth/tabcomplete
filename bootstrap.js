@@ -112,10 +112,7 @@ let observer = {
 
         completions.sort(function(one, two)
         {
-            [one, two] = [one, two].map(function(string)
-            {
-                return string.toLowerCase();
-            });
+            [one, two] = [string.toLowerCase() for each (string in [one, two])];
 
             if (one < two)
                 return -1;

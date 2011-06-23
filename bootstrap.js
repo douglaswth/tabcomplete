@@ -110,7 +110,20 @@ let observer = {
         else
             completions.push(conversation.buddy.userName + (first ? ":" : ""));
 
-        completions.sort();
+        completions.sort(function(one, two)
+        {
+            [one, two] = [one, two].map(function(string)
+            {
+                return string.toLowerCase();
+            });
+
+            if (one < two)
+                return -1;
+            else if (one > two)
+                return 1;
+            else
+                return 0;
+        });
 
         Services.console.logStringMessage(conversation.name + ": " + completions);
     },

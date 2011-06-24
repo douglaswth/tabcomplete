@@ -91,24 +91,38 @@ let observer = {
         var binding = editor.ownerDocument.getBindingParent(editor);
         var conversation = binding._conv;
         var completions = [];
-        var first = true;
+        var word = editor.value.substring(0, editor.selectionStart).match(/\S*$/)[0];
+        var [first, before, after] = [editor.selectionStart - word.length == 0, editor.value.substring(0, editor.selectionStart - word.length), editor.value.substring(editor.selectionEnd)];
 
-        if (first)
+        function completable(completion)
+        {
+            return completion.toLowerCase().indexOf(word.toLowerCase()) == 0;
+        }
+
+        if (first && (word.length == 0 || word.indexOf("/") == 0))
             for each (let command in Services.cmd.listCommandsForConversation(conversation))
             {
                 var completion = "/" + command.name;
 
-                if (completions.indexOf(completion) == -1)
+                if (completable(completion) && completions.indexOf(completion) == -1)
                     completions.push(completion);
             }
 
         if (conversation.isChat)
-        {
             for each (let participant in generatorFromEnumerator(conversation.getParticipants()))
-                completions.push(participant.name + (first ? ":" : ""));
-        }
+            {
+                var completion = participant.name + (first ? ":" : "");
+
+                if (completable(completion))
+                    completions.push(completion);
+            }
         else
-            completions.push(conversation.buddy.userName + (first ? ":" : ""));
+        {
+            var completion = conversation.buddy.userName + (first ? ":" : "");
+
+            if (completable(completion))
+                completions.push(completion);
+        }
 
         completions.sort(function(one, two)
         {
@@ -122,7 +136,36 @@ let observer = {
                 return 0;
         });
 
-        Services.console.logStringMessage(conversation.name + ": " + completions);
+        var [completion, full] = [undefined, undefined];
+
+        switch (completions.length)
+        {
+        case 0:
+            return;
+        case 1:
+            [completion, full] = [completions[0], true];
+            break;
+        default:
+            let [first, last] = [string.toLowerCase() for each (string in [completions[0], completions[completions.length - 1]])];
+            let length = 0;
+
+            for (; length != first.length; ++length)
+                if (first[length] != last[length])
+                    break;
+
+            [completion, full] = [first.substring(0, length), false];
+
+            conversation.systemMessage(completions.join(" "));
+        }
+
+        if (completion.length != 0)
+        {
+            editor.value = before + completion + (full ? " " : "") + after;
+
+            var cursor = before.length + completion.length + (full ? 1 : 0);
+
+            editor.setSelectionRange(cursor, cursor);
+        }
     },
 };
 

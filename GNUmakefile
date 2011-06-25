@@ -15,7 +15,7 @@ RM_F := rm -f
 endif
 
 files := install.rdf bootstrap.js
-version := $(shell $(SED) -re 's|^.*<em:version>(.+)</em:version>|\1|p;d' install.rdf)
+version := $(shell $(SED) -re "s|^.*<em:version>(.+)</em:version>|\1|p;d" install.rdf)
 xpi := tabcomplete-$(version).xpi
 
 .PHONY: all clean

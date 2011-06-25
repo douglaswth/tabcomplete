@@ -2,11 +2,11 @@
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
     <Description about="urn:mozilla:install-manifest">
         <em:id>tabcomplete@douglasthrift.net</em:id>
-        <em:version>1.0alpha</em:version>
+        <em:version>1.0</em:version>
         <em:type>2</em:type>
+        <!-- Instantbird -->
         <em:targetApplication>
             <Description>
-                <!-- Instantbird -->
                 <em:id>{33cb9019-c295-46dd-be21-8c4936574bee}</em:id>
                 <em:minVersion>0.3b1</em:minVersion>
                 <em:maxVersion>1.0.*</em:maxVersion>
@@ -16,7 +16,6 @@
         <em:bootstrap>true</em:bootstrap>
         <em:description>Tab completion for conversation windows including commands and nicknames.</em:description>
         <em:creator>Douglas Thrift</em:creator>
-        <em:homepageURL>http://code.douglasthrift.net/trac/tabcomplete</em:homepageURL>
     </Description>
 </RDF>
 <!-- vim: set expandtab: -->

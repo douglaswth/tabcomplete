@@ -1,6 +1,6 @@
-// Douglas Thrift
-//
 // Tab Complete
+//
+// Douglas Thrift
 //
 // bootstrap.js
 

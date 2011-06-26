@@ -36,7 +36,7 @@ $(xpi): $(files)
 	$(ZIP) -ll $(xpi) $(files)
 
 install:
-	echo $(cwd) > $(shortcut)
+	echo $(cwd)> $(shortcut)
 
 deinstall:
 	-$(RM_F) $(shortcut)

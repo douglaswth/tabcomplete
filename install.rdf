@@ -16,6 +16,7 @@
         <em:bootstrap>true</em:bootstrap>
         <em:description>Tab completion for conversation windows including commands and nicknames.</em:description>
         <em:creator>Douglas Thrift</em:creator>
+        <em:homepageURL>http://code.douglasthrift.net/trac/instantbird#TabComplete</em:homepageURL>
     </Description>
 </RDF>
 <!-- vim: set expandtab: -->
